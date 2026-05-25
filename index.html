@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KleTech — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080f;
+    --card: #0f1017;
+    --surface: #13141d;
+    --border: #1e2030;
+    --border-hover: #2e3050;
+    --accent: #5468ff;
+    --accent2: #8b5cf6;
+    --text: #e6e8f0;
+    --muted: #565870;
+    --green: #22c55e;
+    --red: #f87171;
+    --font-h: 'Syne', sans-serif;
+    --font-m: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-m);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* animated grid */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(84,104,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(84,104,255,.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridDrift 20s linear infinite;
+    pointer-events:none;
+  }
+
+  @keyframes gridDrift {
+    from { background-position: 0 0; }
+    to   { background-position: 48px 48px; }
+  }
+
+  /* glows */
+  .g1,.g2 {
+    position:fixed; border-radius:50%;
+    filter:blur(130px); opacity:.12; pointer-events:none;
+  }
+  .g1 { width:600px;height:600px; background:var(--accent);  top:-180px; left:-150px; }
+  .g2 { width:500px;height:500px; background:var(--accent2); bottom:-150px; right:-100px; }
+
+  /* ── wrapper ── */
+  .wrap {
+    position: relative; z-index:1;
+    width:100%; max-width:420px;
+    padding: 24px;
+    animation: rise .6s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  @keyframes rise {
+    from { opacity:0; transform: translateY(28px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* top bar */
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  /* ── header ── */
+  .card-head {
+    padding: 36px 36px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 28px;
+  }
+
+  .brand-icon {
+    width:38px; height:38px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:17px;
+  }
+
+  .brand-text {
+    font-family: var(--font-h);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.4px;
+  }
+
+  .brand-text em { color: var(--accent); font-style:normal; }
+
+  .card-head h1 {
+    font-family: var(--font-h);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    margin-bottom: 6px;
+  }
+
+  .card-head p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── body ── */
+  .card-body { padding: 28px 36px 36px; }
+
+  .field { margin-bottom: 18px; }
+
+  label {
+    display:block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap .icon {
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    font-size:15px; pointer-events:none; opacity:.5;
+  }
+
+  input[type=text], input[type=password] {
+    width:100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 14px 13px 42px;
+    color: var(--text);
+    font-family: var(--font-m);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    -webkit-autofill: none;
+  }
+
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(84,104,255,.14);
+  }
+
+  input::placeholder { color: var(--muted); }
+
+  /* show/hide password */
+  .eye {
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    cursor:pointer; font-size:15px; opacity:.4;
+    transition: opacity .2s;
+    user-select:none;
+  }
+  .eye:hover { opacity:.9; }
+
+  /* remember row */
+  .row {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom: 22px;
+  }
+
+  .check-label {
+    display:flex; align-items:center; gap:8px;
+    font-size:12px; color:var(--muted); cursor:pointer;
+  }
+
+  .check-label input[type=checkbox] {
+    width:15px; height:15px;
+    accent-color: var(--accent);
+    padding:0;
+  }
+
+  .forgot {
+    font-size:12px; color:var(--accent);
+    text-decoration:none; cursor:pointer;
+    transition: opacity .2s;
+  }
+  .forgot:hover { opacity:.7; }
+
+  /* ── submit button ── */
+  .submit-btn {
+    width:100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    color:#fff;
+    font-family: var(--font-h);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition: transform .15s, opacity .2s;
+  }
+
+  .submit-btn:hover  { opacity:.92; transform:translateY(-1px); }
+  .submit-btn:active { transform:translateY(0); opacity:1; }
+
+  .submit-btn .btn-text { position:relative; z-index:1; transition: opacity .2s; }
+
+  .submit-btn .spinner {
+    display:none;
+    position:absolute; inset:0;
+    align-items:center; justify-content:center;
+  }
+
+  .submit-btn.loading .btn-text { opacity:0; }
+  .submit-btn.loading .spinner  { display:flex; }
+
+  .dot-bounce {
+    width:7px; height:7px;
+    background:#fff; border-radius:50%;
+    margin:0 3px;
+    animation: bounce .6s infinite alternate;
+  }
+  .dot-bounce:nth-child(2) { animation-delay:.2s; }
+  .dot-bounce:nth-child(3) { animation-delay:.4s; }
+
+  @keyframes bounce {
+    from { transform:translateY(0); opacity:.4; }
+    to   { transform:translateY(-6px); opacity:1; }
+  }
+
+  /* ── error ── */
+  .err {
+    display:none;
+    background: rgba(248,113,113,.08);
+    border: 1px solid rgba(248,113,113,.25);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 12px;
+    color: #fca5a5;
+    margin-top: 14px;
+    animation: shake .3s ease;
+  }
+
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    75%{transform:translateX(6px)}
+  }
+
+  /* ── divider ── */
+  .divider {
+    display:flex; align-items:center; gap:12px;
+    margin: 22px 0;
+    font-size:11px; color:var(--muted);
+  }
+  .divider::before,.divider::after {
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+
+  /* ── SSO button ── */
+  .sso-btn {
+    width:100%;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 13px;
+    color: var(--text);
+    font-family: var(--font-m);
+    font-size:13px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition: border-color .2s, background .2s;
+  }
+
+  .sso-btn:hover {
+    border-color: var(--border-hover);
+    background: var(--surface);
+  }
+
+  .jira-logo {
+    width:20px; height:20px;
+    background: linear-gradient(135deg,#0052cc,#2684ff);
+    border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:#fff; font-weight:700;
+  }
+
+  /* ── footer ── */
+  .card-foot {
+    border-top: 1px solid var(--border);
+    padding: 16px 36px;
+    text-align:center;
+    font-size:11px; color:var(--muted);
+  }
+
+  .card-foot b { color:var(--text); }
+
+  /* ── success overlay ── */
+  .success-overlay {
+    display:none;
+    position:fixed; inset:0; z-index:999;
+    background: var(--bg);
+    align-items:center; justify-content:center;
+    flex-direction:column; gap:16px;
+    animation: fadeIn .3s ease;
+  }
+
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  .success-overlay.show { display:flex; }
+
+  .check-circle {
+    width:70px; height:70px;
+    border-radius:50%;
+    background: rgba(34,197,94,.12);
+    border: 2px solid rgba(34,197,94,.4);
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px;
+    animation: popIn .4s .1s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes popIn {
+    from{transform:scale(0); opacity:0}
+    to{transform:scale(1); opacity:1}
+  }
+
+  .success-overlay h2 {
+    font-family: var(--font-h);
+    font-size:22px; font-weight:800;
+    animation: fadeUp .4s .3s ease both;
+  }
+
+  .success-overlay p {
+    color:var(--muted); font-size:13px;
+    animation: fadeUp .4s .4s ease both;
+  }
+
+  .redirect-bar {
+    width:200px; height:3px;
+    background:var(--border);
+    border-radius:3px;
+    overflow:hidden;
+    margin-top:4px;
+    animation: fadeUp .4s .5s ease both;
+  }
+
+  .redirect-fill {
+    height:100%;
+    background: linear-gradient(90deg,var(--accent),var(--accent2));
+    border-radius:3px;
+    width:0%;
+    animation: fill 2s .6s linear both;
+  }
+
+  @keyframes fill { to{width:100%} }
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(10px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  @media(max-width:480px){
+    .card-head,.card-body,.card-foot{padding-left:24px;padding-right:24px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="g1"></div>
+<div class="g2"></div>
+
+<!-- ══ SUCCESS OVERLAY ══ -->
+<div class="success-overlay" id="success">
+  <div class="check-circle">✓</div>
+  <h2>Login Successful!</h2>
+  <p>Redirecting to your Jira dashboard…</p>
+  <div class="redirect-bar"><div class="redirect-fill"></div></div>
+</div>
+
+<!-- ══ LOGIN CARD ══ -->
+<div class="wrap">
+  <div class="card">
+
+    <div class="card-head">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">Kle<em>Tech</em></div>
+      </div>
+      <h1>Welcome back</h1>
+      <p>Sign in to view your project sprint status</p>
+    </div>
+
+    <div class="card-body">
+
+      <div class="field">
+        <label>Email / Username</label>
+        <div class="input-wrap">
+          <span class="icon">👤</span>
+          <input type="text" id="email" placeholder="you@kletech.com" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" id="pwd">
+          <span class="eye" id="eyeBtn" onclick="toggleEye()">👁</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="check-label">
+          <input type="checkbox" id="remember">
+          Remember me
+        </label>
+        <span class="forgot">Forgot password?</span>
+      </div>
+
+      <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+        <span class="btn-text">Sign In →</span>
+        <span class="spinner">
+          <span class="dot-bounce"></span>
+          <span class="dot-bounce"></span>
+          <span class="dot-bounce"></span>
+        </span>
+      </button>
+
+      <div class="err" id="errMsg"></div>
+
+      <div class="divider">or continue with</div>
+
+      <button class="sso-btn" onclick="ssoJira()">
+        <div class="jira-logo">J</div>
+        Sign in with Atlassian / Jira SSO
+      </button>
+
+    </div>
+
+    <div class="card-foot">
+      Demo credentials → <b>admin</b> / <b>admin123</b>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── helpers ── */
+  const $  = id => document.getElementById(id);
+  const el = {
+    email:    $('email'),
+    pwd:      $('password'),
+    btn:      $('loginBtn'),
+    err:      $('errMsg'),
+    eye:      $('eyeBtn'),
+    success:  $('success'),
+  };
+
+  /* enter key */
+  [el.email, el.pwd].forEach(i =>
+    i.addEventListener('keydown', e => e.key === 'Enter' && doLogin())
+  );
+
+  /* show/hide password */
+  function toggleEye() {
+    const isText = el.pwd.type === 'text';
+    el.pwd.type  = isText ? 'password' : 'text';
+    el.eye.textContent = isText ? '👁' : '🙈';
+  }
+
+  /* ── login logic ── */
+  function doLogin() {
+    const u = el.email.value.trim();
+    const p = el.pwd.value.trim();
+
+    hideErr();
+
+    if (!u) { showErr('Please enter your email or username.'); el.email.focus(); return; }
+    if (!p) { showErr('Please enter your password.'); el.pwd.focus(); return; }
+
+    /* show spinner */
+    el.btn.classList.add('loading');
+    el.btn.disabled = true;
+
+    setTimeout(() => {
+      /* ── CREDENTIALS CHECK ──
+         Add more users here as needed.
+         In production, replace with a real API call. */
+      const USERS = {
+        'admin':           'admin123',
+        'avinash':         'avinash123',
+        'manager':         'manager123',
+        'developer':       'dev123',
+      };
+
+      const valid = USERS[u.toLowerCase()] === p
+                 || USERS[u.split('@')[0].toLowerCase()] === p;
+
+      el.btn.classList.remove('loading');
+      el.btn.disabled = false;
+
+      if (!valid) {
+        showErr('Incorrect username or password. Check the demo credentials below.');
+        el.pwd.value = '';
+        el.pwd.focus();
+        return;
+      }
+
+      /* ── SUCCESS ── */
+      el.success.classList.add('show');
+
+      /* after 2.6s → redirect to dashboard page */
+      setTimeout(() => {
+        /* Change this URL to your actual Jira board URL
+           OR to your dashboard.html file on GitHub Pages */
+        const JIRA_BOARD = 'https://kletech-team-zvq32f7p.atlassian.net/jira/software/projects/SCRUM/boards/1';
+        window.location.href = JIRA_BOARD;
+      }, 2600);
+
+    }, 1300); /* simulate network delay */
+  }
+
+  /* ── Atlassian SSO ── */
+  function ssoJira() {
+    /* Replace CLIENT_ID and REDIRECT_URI with your actual Atlassian OAuth app values */
+    const CLIENT_ID    = 'YOUR_ATLASSIAN_OAUTH_CLIENT_ID';
+    const REDIRECT_URI = encodeURIComponent(window.location.href);
+    const scope        = encodeURIComponent('read:jira-user read:jira-work offline_access');
+    const url = `https://auth.atlassian.com/authorize?audience=api.atlassian.com&client_id=${CLIENT_ID}&scope=${scope}&redirect_uri=${REDIRECT_URI}&response_type=code&prompt=consent`;
+    window.location.href = url;
+  }
+
+  function showErr(msg) {
+    el.err.textContent = '⚠ ' + msg;
+    el.err.style.display = 'block';
+    el.err.style.animation = 'none';
+    requestAnimationFrame(() => el.err.style.animation = 'shake .3s ease');
+  }
+
+  function hideErr() {
+    el.err.style.display = 'none';
+  }
+</script>
+</body>
+</html>
